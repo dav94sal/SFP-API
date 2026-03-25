@@ -23,20 +23,31 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Step 1: Get challenge
+    const formData = req.body;
+    console.log("Incoming Form Data:", formData);
+
+    // Validate required fields
+    if (!formData.lastname) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing required field: lastname"
+      });
+    }
+
+    // Get challenge
     const challengeRes = await fetch(
       `${VTIGER_URL}?operation=getchallenge&username=${USERNAME}`
     );
     const challengeData = await challengeRes.json();
     const token = challengeData.result.token;
 
-    // Step 2: Generate MD5
+    // Hash
     const hash = crypto
       .createHash("md5")
       .update(token + ACCESS_KEY)
       .digest("hex");
 
-    // Step 3: Login
+    // Login
     const loginRes = await fetch(VTIGER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -48,18 +59,60 @@ export default async function handler(req, res) {
     });
 
     const loginData = await loginRes.json();
+
+    if (!loginData.success) {
+      throw new Error("Login failed: " + JSON.stringify(loginData));
+    }
+
     const sessionName = loginData.result.sessionName;
 
-    // Step 4: Describe Leads
-    const describeRes = await fetch(
-      `${VTIGER_URL}?operation=describe&sessionName=${sessionName}&elementType=Leads`
-    );
+    console.log("Session:", sessionName)
 
-    const describeData = await describeRes.json();
+    // Create Lead
+    const row = req.body.row;
 
-    res.status(200).json(describeData);
+    const createRes = await fetch(VTIGER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        operation: "create",
+        sessionName,
+        elementType: "Leads",
+        element: JSON.stringify(row)
+      })
+    });
+
+    const createData = await createRes.json();
+
+    console.log("VTIGER CREATE RESPONSE:", createData);
+
+    // Handle Failure
+    if (!createData.success) {
+      console.error("❌ VTIGER FAILED:", createData);
+
+      // 🚨 Prevent silent data loss
+      console.error("FAILED SUBMISSION DATA:", formData);
+
+      return res.status(500).json({
+        success: false,
+        error: createData.error || "Unknown Vtiger error",
+        debug: createData
+      });
+    }
+
+    // Success
+    return res.status(200).json({
+      success: true,
+      message: "Lead created successfully",
+      id: createData.result.id
+    });
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("🔥 SERVER ERROR:", err);
+
+    return res.status(500).json({
+      success: false,
+      error: err.message
+    });
   }
 }

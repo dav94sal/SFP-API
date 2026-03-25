@@ -80,12 +80,17 @@ export default async function handler(req, res) {
       })
     });
 
-    console.log("CREATE STATUS:", createRes.status);
-    console.log("CREATE RAW:", await createRes.text());
 
-    const createData = await createRes.json();
+    const raw = await createRes.text();
 
-    console.log("VTIGER CREATE RESPONSE:", createData);
+    console.log("VTIGER RAW RESPONSE:", raw);
+
+    let createData;
+    try {
+      createData = JSON.parse(raw);
+    } catch (err) {
+      throw new Error("Invalid JSON from Vtiger: " + raw);
+    }
 
     // Handle Failure
     if (!createData.success) {

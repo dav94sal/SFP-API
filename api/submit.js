@@ -34,6 +34,13 @@ export default async function handler(req, res) {
       });
     }
 
+    if (!formData.assigned_user_id) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing required field: assigned_user_id"
+      });
+    }
+
     // Get challenge
     const challengeRes = await fetch(
       `${VTIGER_URL}?operation=getchallenge&username=${USERNAME}`

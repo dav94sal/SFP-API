@@ -24,7 +24,7 @@ export default async function handler(req, res) {
 
   try {
     const formData = req.body;
-    console.log("Incoming Form Data:", formData);
+    // console.log("Incoming Form Data:", formData);
 
     // Validate required fields
     if (!formData.lastname) {
@@ -69,7 +69,7 @@ export default async function handler(req, res) {
     console.log("Session:", sessionName)
 
     // Create Lead
-    const row = req.body.row;
+    const row = formData.row;
 
     const createRes = await fetch(VTIGER_URL, {
       method: "POST",
@@ -78,7 +78,7 @@ export default async function handler(req, res) {
         operation: "create",
         sessionName,
         elementType: "Leads",
-        element: JSON.stringify(row)
+        element: row
       })
     });
 

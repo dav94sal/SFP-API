@@ -69,8 +69,6 @@ export default async function handler(req, res) {
     console.log("Session:", sessionName)
 
     // Create Lead
-    const row = formData.row;
-
     const createRes = await fetch(VTIGER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -78,9 +76,12 @@ export default async function handler(req, res) {
         operation: "create",
         sessionName,
         elementType: "Leads",
-        element: row
+        element: JSON.stringify(formData)
       })
     });
+
+    console.log("CREATE STATUS:", createRes.status);
+    console.log("CREATE RAW:", await createRes.text());
 
     const createData = await createRes.json();
 

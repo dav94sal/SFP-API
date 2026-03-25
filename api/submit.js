@@ -34,12 +34,12 @@ export default async function handler(req, res) {
       });
     }
 
-    // if (!formData.assigned_user_id) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     error: "Missing required field: assigned_user_id"
-    //   });
-    // }
+    if (!formData.assigned_user_id) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing required field: assigned_user_id"
+      });
+    }
 
     // Get challenge
     const challengeRes = await fetch(
@@ -73,8 +73,6 @@ export default async function handler(req, res) {
 
     const sessionName = loginData.result.sessionName;
 
-    console.log("Session:", sessionName)
-
     // Create Lead
     const createRes = await fetch(VTIGER_URL, {
       method: "POST",
@@ -90,7 +88,7 @@ export default async function handler(req, res) {
 
     const raw = await createRes.text();
 
-    console.log("VTIGER RAW RESPONSE:", raw);
+    // console.log("VTIGER RAW RESPONSE:", raw);
 
     let createData;
     try {

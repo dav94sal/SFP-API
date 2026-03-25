@@ -3,9 +3,14 @@ import crypto from "crypto";
 const VTIGER_URL = "https://sitefactorproductions.com/vtiger/webservice.php";
 const USERNAME = process.env.VTIGER_USERNAME;
 const ACCESS_KEY = process.env.VTIGER_ACCESS_KEY;
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS;
 
 export default async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "https://sitefactorproductions.com");
+  const origin = req.headers.origin;
+
+  if (ALLOWED_ORIGINS.split(',').includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 

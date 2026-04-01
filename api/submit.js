@@ -1,11 +1,29 @@
-import authorizeRequest from "../utils/auth";
+import authorizeRequest from "../utils/auth.js";
 
 const VTIGER_URL = "https://sitefactorproductions.com/vtiger/webservice.php";
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS;
 
 export default async function handler(req, res) {
+  const origin = req.headers.origin;
+  console.log("origin", origin)
+
+  if (ALLOWED_ORIGINS.split(',').includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
   try {
     const formData = req.body;
-    // console.log("Incoming Form Data:", formData);
+    console.log("Incoming Form Data:", formData);
 
     // Validate required fields
     if (!formData.lastname) {
@@ -22,7 +40,8 @@ export default async function handler(req, res) {
       });
     }
 
-    const sessionName = authorizeRequest(VTIGER_URL)
+    const sessionName = await authorizeRequest(VTIGER_URL)
+    // console.log("Session Name:", sessionName);
 
     // Create Lead
     const createRes = await fetch(VTIGER_URL, {

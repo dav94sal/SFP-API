@@ -1,5 +1,5 @@
 .vercel
-.env
+.env*
 node_modules/
 vtiger-*.json
 .env*.local

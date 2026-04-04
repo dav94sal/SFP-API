@@ -11,6 +11,8 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "dotenv": "^17.3.1"
+    "@microsoft/microsoft-graph-client": "^3.0.7",
+    "dotenv": "^17.3.1",
+    "isomorphic-fetch": "^3.0.0"
   }
 }

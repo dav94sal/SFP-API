@@ -1,29 +1,15 @@
-import authorizeRequest from "../utils/auth.js";
+import authorizeRequest from "../utils/vAuth.js";
+import sendEmail from "../utils/handleEmail.js";
+import { setHeader } from "../utils/header.js";
 
 const VTIGER_URL = "https://sitefactorproductions.com/vtiger/webservice.php";
-const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS;
 
 export default async function handler(req, res) {
-  const origin = req.headers.origin;
-  console.log("origin", origin)
-
-  if (ALLOWED_ORIGINS.split(',').includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
-
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
 
   try {
+    if (!setHeader(req, res, "POST")) return;
     const formData = req.body;
-    console.log("Incoming Form Data:", formData);
+    // console.log("Incoming Form Data:", formData);
 
     // Validate required fields
     if (!formData.lastname) {
@@ -79,6 +65,24 @@ export default async function handler(req, res) {
         error: createData.error || "Unknown Vtiger error",
         debug: createData
       });
+    }
+
+    console.log("📧 Sending emails...");
+
+    try {
+      await sendEmail({
+        type: "customer_confirmation",
+        to: formData.email,
+        data: formData
+      });
+
+      await sendEmail({
+        type: "internal_notification",
+        to: process.env.SENDER_EMAIL,
+        data: formData
+      });
+    } catch (e) {
+      console.error("Email failed:", e);
     }
 
     // Success

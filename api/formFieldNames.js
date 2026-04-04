@@ -1,4 +1,4 @@
-import authorizeRequest from "../utils/auth.js";
+import authorizeRequest from "../utils/vAuth.js";
 
 const VTIGER_URL = "https://sitefactorproductions.com/vtiger/webservice.php";
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS;

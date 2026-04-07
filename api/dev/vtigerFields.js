@@ -1,26 +1,13 @@
-import authorizeRequest from "../utils/vAuth.js";
+import { authorizeRequest } from "../../utils/auth.js";
+import { setHeader } from "../../utils/header.js";
 
 const VTIGER_URL = "https://sitefactorproductions.com/vtiger/webservice.php";
-const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS;
 
 export default async function getFields(req, res) {
-    const origin = req.headers.origin;
-
-    if (ALLOWED_ORIGINS.split(',').includes(origin)) {
-        res.setHeader("Access-Control-Allow-Origin", origin);
-    }
-    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
-    if (req.method === "OPTIONS") {
-        return res.status(200).end();
-    }
-
-    if (req.method !== "GET") {
-        return res.status(405).json({ error: "Method not allowed" });
-    }
 
     try {
+        if (!setHeader(req, res, "GET")) return;
+
         // console.log("START getFields");
 
         // ✅ AUTH REQUIRED

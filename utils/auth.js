@@ -3,7 +3,7 @@ import crypto from "crypto";
 const USERNAME = process.env.VTIGER_USERNAME;
 const ACCESS_KEY = process.env.VTIGER_ACCESS_KEY;
 
-export default async function authorizeRequest(URL) {
+export async function authorizeRequest(URL) {
 
     // Get challenge
     const challengeRes = await fetch(
@@ -37,4 +37,19 @@ export default async function authorizeRequest(URL) {
 
     const sessionName = loginData.result.sessionName;
     return sessionName
+}
+
+
+export function injectToken() {
+    const token = process.env.JOOMLA_API_TOKEN;
+
+    if (!token) {
+        throw new Error("Missing JOOMLA_API_TOKEN");
+    }
+
+    return {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.api+json",
+        "Content-Type": "application/vnd.api+json"
+    };
 }

@@ -1,5 +1,5 @@
-import authorizeRequest from "../utils/vAuth.js";
 import sendEmail from "../utils/handleEmail.js";
+import { authorizeRequest } from "../utils/auth.js";
 import { setHeader } from "../utils/header.js";
 
 const VTIGER_URL = "https://sitefactorproductions.com/vtiger/webservice.php";
@@ -67,7 +67,7 @@ export default async function handler(req, res) {
       });
     }
 
-    console.log("📧 Sending emails...");
+    // console.log("📧 Sending emails...");
 
     try {
       await sendEmail({

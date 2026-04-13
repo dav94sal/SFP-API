@@ -21,24 +21,26 @@ function parseMedia(field) {
 
 export function normalizeArticle(article) {
   const attr = article.attributes || {};
-  const categoryId = attr.relationships?.category?.data?.id;
+  const categoryId = article.relationships?.category?.data?.id;
+  // console.log(categoryId)
 
   return {
     id: article.id,
     title: attr.title || "",
+    sectionTitle: attr["section-title"] || "",
 
     // sections
-    type: getValue(attr["section-type"]),
-    page: getValue(attr["page"]),
     order: Number(attr.order) || 0,
     content: attr.content || "",
 
     image: parseMedia(attr.image),
-    video: attr["video-url"] || parseMedia(attr["video-file"]),
+    landingVideo: attr["landing-video-url"] || parseMedia(attr["landing-video"]),
 
     cta: {
-      text: attr["cta-text"] || null,
-      link: attr["cta-link"] || null
+      title: attr["cta-title"] || null,
+      content: attr["cta-content"] || null,
+      buttText: attr["cta-butt-l-text"] || null,
+      buttLink: attr["cta-butt-l-link"] || null
     },
 
     // reels

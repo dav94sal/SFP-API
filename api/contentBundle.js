@@ -1,6 +1,5 @@
 import { authorizeRequest, injectToken } from "../utils/auth.js";
 import { setHeader } from "../utils/header.js";
-// import { getAllContent } from "../utils/getAllContent.js";
 import { normalizeArticle } from "../utils/normalize.js";
 
 const baseUrl = 'https://sitefactorproductions.com';
@@ -14,7 +13,7 @@ const TTL = 1000 * 60 * 10; // 10 minutes
 
 export default async function handler(req, res) {
     const now = Date.now();
-    console.log("New fetch at: ", now)
+    // console.log("New fetch at: ", now, '\n')
 
     if (cache && now - lastFetch < TTL) {
         return res.status(200).json(cache);
@@ -24,8 +23,6 @@ export default async function handler(req, res) {
         if (!setHeader(req, res, "GET")) return;
 
         // 🔹 Fetch everything in parallel
-        // const raw = await getAllContent();
-
         const [formConfigRes, rawContentRes] = await Promise.all([
             fetch(JOOMLA_FORM_URL),
             fetch(JOOMLA_CONTENT_URL, { headers: injectToken() })
@@ -42,8 +39,18 @@ export default async function handler(req, res) {
 
         // 🏠 SECTIONS (category 11)
         const sections = normalized
-            .filter(a => a.type && a.page)
-            .sort((a, b) => a.order - b.order);
+            .filter(a => a.sectionTitle && a.published)
+            .sort((a, b) => a.order - b.order)
+            .map(r => ({
+                id: r.id,
+                title: r.sectionTitle,
+                order: r.order,
+                content: r.content,
+                image: r.image,
+                featured: r.featured,
+                published: r. published,
+                categoryId: r.categoryId,
+            }));
 
         // 🎬 REELS (category 12)
         const reels = normalized
@@ -51,17 +58,30 @@ export default async function handler(req, res) {
             .map(r => ({
                 id: r.id,
                 title: r.title,
-                video: r.reelVideo || r.video,
+                video: r.reelVideo,
                 thumbnail: r.thumbnail,
                 category: r.categoryTag,
-                featured: r.featured
+                featured: r.featured,
+                published: r.published,
+                categoryId: r.categoryId,
             }));
 
-        const content = { sections, reels };
+        const cta = normalized
+            .filter(a => a.title === 'Call To Action')
+            .map(r => ({
+                id: r.id,
+                title: r.cta.title,
+                content: r.cta.content,
+                buttText: r.cta.buttText,
+                buttLink: r.cta.buttLink,
+                featured: r.featured,
+                published: r.published,
+                categoryId: r.categoryId,
+            }));
+
+        const content = { sections, cta, reels };
 
         // console.log("CONTENT: ", content)
-        // cache = content;
-        // lastFetch = now;
 
         // 🔹 Fetch vtiger schema
         const sessionName = await authorizeRequest(VTIGER_URL);

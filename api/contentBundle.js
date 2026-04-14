@@ -48,7 +48,7 @@ export default async function handler(req, res) {
                 content: r.content,
                 image: r.image,
                 featured: r.featured,
-                published: r. published,
+                published: r.published,
                 categoryId: r.categoryId,
             }));
 
@@ -130,22 +130,11 @@ export default async function handler(req, res) {
         res.json(bundle);
 
     } catch (err) {
-        console.warn(err)
-        res.status(500).json({ error: err.message });
+        console.error("🔥 SERVER ERROR:", err);
+
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
     }
 }
-
-// helper
-// function extractFieldNames(config) {
-//     const names = [];
-
-//     config.sections?.forEach(section => {
-//         section.fields?.forEach(f => names.push(f.name));
-
-//         section.groups?.forEach(group => {
-//             group.fields?.forEach(f => names.push(f.name));
-//         });
-//     });
-
-//     return names;
-// }

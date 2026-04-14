@@ -21,8 +21,13 @@ async function getAccessToken() {
     const data = await res.json();
     return data.access_token;
 
-  } catch (error) {
-    console.log(error)
+  } catch (err) {
+    console.error("🔥 SERVER ERROR:", err);
+
+    return res.status(500).json({
+      success: false,
+      error: err.message
+    });
   }
 }
 
@@ -61,13 +66,17 @@ export default async function sendEmail({ type, to, data }) {
 
     const text = await response.text();
 
-    console.log("📨 Graph response status:", response.status);
-    console.log("📨 Graph response body:", text);
+    // console.log("📨 Graph response status:", response.status);
+    // console.log("📨 Graph response body:", text);
 
   } catch (error) {
-    console.log(error)
+    console.error("🔥 SERVER ERROR:", err);
+
+    return res.status(500).json({
+      success: false,
+      error: err.message
+    });
   }
 
 }
 
-// sendEmail()

@@ -13,7 +13,7 @@ const TTL = 1000 * 60 * 10; // 10 minutes
 
 export default async function handler(req, res) {
     const now = Date.now();
-    // console.log("New fetch at: ", now, '\n')
+    console.log("New fetch at: ", now, '\n')
 
     if (cache && now - lastFetch < TTL) {
         return res.status(200).json(cache);
@@ -66,6 +66,10 @@ export default async function handler(req, res) {
                 categoryId: r.categoryId,
             }));
 
+        const categorySet = new Set();
+        reels.forEach(r => categorySet.add(r.category));
+        const categories = Array.from(categorySet)
+
         const cta = normalized
             .filter(a => a.title === 'Call To Action')
             .map(r => ({
@@ -79,9 +83,9 @@ export default async function handler(req, res) {
                 categoryId: r.categoryId,
             }));
 
-        const content = { sections, cta, reels };
+        const content = { sections, cta, reels, categories };
 
-        // console.log("CONTENT: ", content)
+        console.log("CONTENT: ", content)
 
         // 🔹 Fetch vtiger schema
         const sessionName = await authorizeRequest(VTIGER_URL);

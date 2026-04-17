@@ -12,9 +12,9 @@ let lastFetch = 0;
 const TTL = 1000 * 60 * 10; // 10 minutes
 
 export default async function handler(req, res) {
-    let now = Date.now();
-    now = new Date(now).toLocaleTimeString()
-    console.log("New fetch at: ", now, '\n')
+    const now = Date.now();
+    const nowString = new Date(now).toLocaleTimeString()
+    // console.log("New fetch at: ", nowString, '\n')
 
     if (cache && now - lastFetch < TTL) {
         return res.status(200).json(cache);

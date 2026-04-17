@@ -12,7 +12,8 @@ let lastFetch = 0;
 const TTL = 1000 * 60 * 10; // 10 minutes
 
 export default async function handler(req, res) {
-    const now = Date.now();
+    let now = Date.now();
+    now = new Date(now).toLocaleTimeString()
     console.log("New fetch at: ", now, '\n')
 
     if (cache && now - lastFetch < TTL) {
@@ -83,9 +84,9 @@ export default async function handler(req, res) {
                 categoryId: r.categoryId,
             }));
 
-        const content = { sections, cta, reels, categories };
+        const content = { sections, cta, reels };
 
-        console.log("CONTENT: ", content)
+        // console.log("CONTENT: ", content)
 
         // 🔹 Fetch vtiger schema
         const sessionName = await authorizeRequest(VTIGER_URL);
@@ -110,14 +111,12 @@ export default async function handler(req, res) {
             }));
         // console.log("FIELDS: ", fields)
 
-        // 🔹 Extract form field names
-        // const formFieldNames = extractFieldNames(formConfig);
-
         // 🔹 Build leadColumns (validated)
         const leadColumns = fields.map(f => f.name);
         // console.log("<-----LEAD COLUMNS: ", leadColumns)
 
         formConfig.leadColumns = leadColumns;
+        formConfig.categories = categories;
         // console.log("<-----FORM CONFIG: ", formConfig)
 
         // 🔹 Final bundle
